@@ -1,12 +1,8 @@
 <?php
 
-include '../site/bootstrap.php';
+/** @var \Espo\Core\Application $app */
+$app = include __DIR__ . '/bootstrap_app.php';
 
-$app = new \Espo\Core\Application();
-$app->setupSystemUser();
+require __DIR__ . '/run_extension_script.php';
 
-if (file_exists('../src/scripts/AfterInstall.php')) {
-    include('../src/scripts/AfterInstall.php');
-    $afterInstall = new AfterInstall();
-    $afterInstall->run($app->getContainer());
-}
+runExtensionScript($app, '../src/scripts/AfterInstall.php', 'AfterInstall');

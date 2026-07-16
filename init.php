@@ -1,9 +1,16 @@
 <?php
 
-fwrite(\STDOUT, "Enter an extension name:\n");
-$fh = fopen('php://stdin', 'r');
-$name = trim(fgets($fh));
-fclose($fh);
+$prompt = function (string $message): string {
+    fwrite(\STDOUT, $message . "\n");
+
+    $fh = fopen('php://stdin', 'r');
+    $value = trim(fgets($fh));
+    fclose($fh);
+
+    return $value;
+};
+
+$name = $prompt("Enter an extension name:");
 
 $nameLabel = $name;
 
@@ -12,24 +19,15 @@ $name = ucfirst($name);
 $name = str_replace(' ', '', ucwords(preg_replace('/^a-z0-9]+/', ' ', $name)));
 $nameHyphen = strtolower(preg_replace('/(?<!^)[A-Z]/', '-$0', $name));
 
-fwrite(\STDOUT, "Enter a description text:\n");
-$fh = fopen('php://stdin', 'r');
-$description = trim(fgets($fh));
-fclose($fh);
+$description = $prompt("Enter a description text:");
 
 if (substr($description, -1) !== '.') $description .= '.';
 
-fwrite(\STDOUT, "Enter an author name:\n");
-$fh = fopen('php://stdin', 'r');
-$author = trim(fgets($fh));
-fclose($fh);
+$author = $prompt("Enter an author name:");
 
-fwrite(\STDOUT, "Do you want to use ES6 modules in frontend? [y/n]\n");
-$fh = fopen('php://stdin', 'r');
-$es6 = trim(fgets($fh)) === 'y';
+$es6 = $prompt("Do you want to use ES6 modules in frontend? [y/n]") === 'y';
 $bundled = $es6 ? "true" : "false";
 $jsTranspiled = $es6 ? "true" : "false";
-fclose($fh);
 
 $replacePlaceholders = function (string $file) use ($name, $nameHyphen, $nameLabel, $description, $author, $bundled, $jsTranspiled)
 {
