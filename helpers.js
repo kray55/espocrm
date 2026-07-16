@@ -46,7 +46,17 @@ exports.loadConfig = () => {
 
 const execute = (command, callback) => {
     exec(command, (error, stdout, stderr) => {
-        callback(stdout);
+        if (stderr) {
+            process.stderr.write(stderr);
+        }
+
+        if (error) {
+            throw error;
+        }
+
+        if (callback) {
+            callback(stdout);
+        }
     });
 };
 

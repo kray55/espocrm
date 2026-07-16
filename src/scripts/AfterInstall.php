@@ -13,6 +13,10 @@ class AfterInstall
     {
         try {
             $this->container->get('dataManager')->clearCache();
-        } catch (\Exception $e) {}
+        } catch (\Throwable $e) {
+            $this->container->get('log')->warning(
+                'AfterInstall: unable to clear cache: ' . $e->getMessage()
+            );
+        }
     }
 }
