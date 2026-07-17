@@ -1,6 +1,9 @@
-const fs = require('fs-extra');
-const exec = require('child_process').exec;
-const path = require('path');
+import fs from 'fs-extra';
+import {exec} from 'child_process';
+import path from 'path';
+import {createRequire} from 'module';
+
+const require = createRequire(import.meta.url);
 
 const isObject = function (item) {
     return (item && typeof item === 'object' && !Array.isArray(item));
@@ -30,7 +33,7 @@ const mergeDeep = function (target, ...sources) {
     return mergeDeep(target, ...sources);
 };
 
-exports.loadConfig = () => {
+export const loadConfig = () => {
     const configDefault = require('./config-default.json');
     let config;
 
@@ -42,9 +45,9 @@ exports.loadConfig = () => {
     }
 
     return config;
-}
+};
 
-const execute = (command, callback) => {
+export const execute = (command, callback) => {
     exec(command, (error, stdout, stderr) => {
         if (stderr) {
             process.stderr.write(stderr);
@@ -60,9 +63,7 @@ const execute = (command, callback) => {
     });
 };
 
-exports.execute = execute;
-
-const deleteDirRecursively = path => {
+export const deleteDirRecursively = path => {
     if (fs.existsSync(path) && fs.lstatSync(path).isDirectory()) {
         fs.readdirSync(path).forEach(file => {
             const curPath = path + "/" + file;
@@ -85,8 +86,6 @@ const deleteDirRecursively = path => {
         fs.unlinkSync(path);
     }
 };
-
-exports.deleteDirRecursively = deleteDirRecursively;
 
 const promiseAllWait = promises => {
     let all_promises = [];
@@ -132,7 +131,7 @@ const movePromiser = (from, to, records) => {
         });
 };
 
-exports.moveDir = (from_dir, to_dir) => fs.readdir(from_dir)
+export const moveDir = (from_dir, to_dir) => fs.readdir(from_dir)
     .then(children => fs.ensureDir(to_dir)
         .then(() => {
             let move_promises = [];
@@ -166,7 +165,7 @@ exports.moveDir = (from_dir, to_dir) => fs.readdir(from_dir)
         })
         .then(() => fs.rmdir(from_dir)));
 
-exports.getProcessParam = name => {
+export const getProcessParam = name => {
     let value = null;
 
     process.argv.forEach(item => {
@@ -176,11 +175,11 @@ exports.getProcessParam = name => {
     });
 
     return value;
-}
+};
 
-exports.camelCaseToHyphen = (string => string.replace( /([a-z])([A-Z])/g, '$1-$2' ).toLowerCase());
+export const camelCaseToHyphen = (string => string.replace( /([a-z])([A-Z])/g, '$1-$2' ).toLowerCase());
 
-exports.hasProcessParam = param => {
+export const hasProcessParam = param => {
     for (let i in process.argv) {
         if (process.argv[i] === '--' + param) {
             return true;
@@ -188,4 +187,4 @@ exports.hasProcessParam = param => {
     }
 
     return false;
-}
+};
