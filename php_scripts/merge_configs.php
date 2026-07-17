@@ -1,12 +1,10 @@
 <?php
 
-include '../site/bootstrap.php';
-
 use Espo\Core\InjectableFactory;
 use Espo\Core\Utils\Config\ConfigWriter;
 
-$app = new \Espo\Core\Application();
-$app->setupSystemUser();
+/** @var \Espo\Core\Application $app */
+$app = include __DIR__ . '/bootstrap_app.php';
 
 $configWriter = $app->getContainer()->getByClass(InjectableFactory::class)->create(ConfigWriter::class);
 
