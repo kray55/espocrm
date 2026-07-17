@@ -3,11 +3,7 @@
 $prompt = function (string $message): string {
     fwrite(\STDOUT, $message . "\n");
 
-    $fh = fopen('php://stdin', 'r');
-    $value = trim(fgets($fh));
-    fclose($fh);
-
-    return $value;
+    return trim(fgets(\STDIN));
 };
 
 $name = $prompt("Enter an extension name:");
