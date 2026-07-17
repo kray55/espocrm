@@ -13,6 +13,10 @@ class AfterUninstall
     {
         try {
             $this->container->get('dataManager')->clearCache();
-        } catch (\Exception $e) {}
+        } catch (\Throwable $e) {
+            $this->container->get('log')->warning(
+                'AfterUninstall: unable to clear cache: ' . $e->getMessage()
+            );
+        }
     }
 }

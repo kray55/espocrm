@@ -35,6 +35,10 @@ $replacePlaceholders = function (string $file) use ($name, $nameHyphen, $nameLab
 {
     $content = file_get_contents($file);
 
+    if ($content === false) {
+        throw new \RuntimeException("Unable to read file '{$file}'.");
+    }
+
     $content = str_replace('{@name}', $name, $content);
     $content = str_replace('{@nameHyphen}', $nameHyphen, $content);
     $content = str_replace('{@nameLabel}', $nameLabel, $content);
@@ -43,7 +47,9 @@ $replacePlaceholders = function (string $file) use ($name, $nameHyphen, $nameLab
     $content = str_replace('{@bundled}', $bundled, $content);
     $content = str_replace('{@jsTranspiled}', $jsTranspiled, $content);
 
-    file_put_contents($file, $content);
+    if (file_put_contents($file, $content) === false) {
+        throw new \RuntimeException("Unable to write file '{$file}'.");
+    }
 };
 
 $replacePlaceholders('package.json');
@@ -64,18 +70,30 @@ if ($es6) {
 CLIENT_JSON;
 
     $path = 'src/files/custom/Espo/Modules/MyModuleName/Resources/metadata/app/';
-    mkdir($path, 0755, true);
+
+    if (!is_dir($path) && !mkdir($path, 0755, true) && !is_dir($path)) {
+        throw new \RuntimeException("Unable to create directory '{$path}'.");
+    }
 
     $path .= "client.json";
-    file_put_contents($path, $content);
+
+    if (file_put_contents($path, $content) === false) {
+        throw new \RuntimeException("Unable to write file '{$path}'.");
+    }
 
     $replacePlaceholders($path);
 }
 
-rename('src/files/custom/Espo/Modules/MyModuleName', 'src/files/custom/Espo/Modules/'. $name);
-rename('src/files/client/custom/modules/my-module-name', 'src/files/client/custom/modules/'. $nameHyphen);
+$renameOrFail = function (string $from, string $to): void {
+    if (!rename($from, $to)) {
+        throw new \RuntimeException("Unable to rename '{$from}' to '{$to}'.");
+    }
+};
 
-rename('tests/unit/Espo/Modules/MyModuleName', 'tests/unit/Espo/Modules/'. $name);
-rename('tests/integration/Espo/Modules/MyModuleName', 'tests/integration/Espo/Modules/'. $name);
+$renameOrFail('src/files/custom/Espo/Modules/MyModuleName', 'src/files/custom/Espo/Modules/'. $name);
+$renameOrFail('src/files/client/custom/modules/my-module-name', 'src/files/client/custom/modules/'. $nameHyphen);
+
+$renameOrFail('tests/unit/Espo/Modules/MyModuleName', 'tests/unit/Espo/Modules/'. $name);
+$renameOrFail('tests/integration/Espo/Modules/MyModuleName', 'tests/integration/Espo/Modules/'. $name);
 
 echo "Ready. Now you need to run 'npm install'.\n";
