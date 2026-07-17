@@ -1,0 +1,52 @@
+name: Build
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  build:
+    name: Scaffold and build extension package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Lint PHP scripts
+        run: |
+          for file in init.php php_scripts/*.php; do
+            php -l "$file"
+          done
+
+      - name: Scaffold extension (non-interactive)
+        run: printf 'CI Sample\nCI build validation.\nCI\nn\n' | php init.php
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build extension package
+        run: node build --extension
+
+      - name: Verify package artifact
+        run: |
+          ls -la build/*.zip
+          test -n "$(ls build/*.zip 2>/dev/null)"
+
+      - name: Upload extension package
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-package
+          path: build/*.zip
+          if-no-files-found: error
