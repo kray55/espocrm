@@ -18,16 +18,23 @@ function copyCustom () {
 
     if (fs.existsSync(sourcePath + '/Controllers')) {
         fs.readdirSync(sourcePath + '/Controllers').forEach(file => {
-            entityTypeList.push(file.slice(0, file.length - 4));
+            if (!file.endsWith('.php')) {
+                return;
+            }
+
+            entityTypeList.push(file.slice(0, -4));
         });
     }
 
     entityTypeList.forEach(eType => {
         const scopeDefsFile = distPath + '/Resources/metadata/scopes/' + eType + '.json';
-        const defs = require(scopeDefsFile);
 
-        defs['module'] = moduleName;
-        fs.writeFileSync(scopeDefsFile, JSON.stringify(defs, null, '    '));
+        if (fs.existsSync(scopeDefsFile)) {
+            const defs = require(scopeDefsFile);
+
+            defs['module'] = moduleName;
+            fs.writeFileSync(scopeDefsFile, JSON.stringify(defs, null, '    '));
+        }
 
         ['Controllers', 'Entities', 'Repositories', 'Services'].forEach(item => {
             const file = distPath + '/' + item + '/' + eType + '.php';
